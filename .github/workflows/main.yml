@@ -40,7 +40,7 @@ jobs:
         chart_dir="go-app"
         new_image_tag=${{github.sha}}
 
-        sed -i "s/^ tag: .*/ tag: $new_image_tag/" "$chart_dir/values.yaml"
+        sed -i "s/^  tag: .*/  tag: $new_image_tag/" "$chart_dir/values.yaml"
 
     - name: Commit the changes made
       run: |
