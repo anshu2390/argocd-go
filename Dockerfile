@@ -5,10 +5,10 @@ FROM golang:1.21 as builder
 WORKDIR /app
 
 # Copy your Go source code to the container
-COPY ./apps .
+COPY . .
 
 # Build your Go application
-RUN CGO_ENABLED=0 GOOS=linux go build -o server
+RUN CGO_ENABLED=0 GOOS=linux go build -o server ./apps
 
 # Use a minimal base image for the final image
 FROM alpine:latest
