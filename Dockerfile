@@ -4,7 +4,7 @@ FROM golang:1.21 as builder
 # Set the working directory
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY go.mod ./
 RUN go mod download
 # Copy your Go source code to the container
 COPY . .
