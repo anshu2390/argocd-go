@@ -1,0 +1,51 @@
+name: Argo CD with GitOps
+
+on:
+  push:
+    branches:
+    - main
+env:
+  DOCKERHUB_USERNAME: ${{secrets.DOCKERHUB_USERNAME}}
+  DOCKERHUB_KEY: ${{secrets.DOCKERHUB_TOKEN}}
+jobs:
+  build:
+    name: Build and Push image to dockerhub
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+    - name: Docker Login
+      uses: actions/login-action@v3
+      with:
+        username: ${{env.DOCKERHUB_USERNAME}}
+        password: ${{env.DOCKERHUB_KEY}}
+
+    - name: Build and Push
+      uses: actions/build-push-action@v6
+      with:
+        push: true
+        tags: ${{env.DOCKERHUB_USERNAME}}/go-app:${{github.sha}} , ${{env.DOCKERHUB_USERNAME}}/go-app:latest
+
+  update:
+    name: Update Helm Manifests
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+    - name: Update Image Tag Values
+      run: |
+        chart_dir="go-app"
+        new_image_tag=${{github.sha}}
+
+        sed -i "s/^ tag: .*/ tag: $new_image_tag/" "$chart_dir/values.yaml"
+
+    - name: Commit the changes made
+      run: |
+        git config --global user.name "anshu2390"
+        git config --global user.email "anshu2390@gmail.com"
+        git commit -am "updating image tag"
+        git push
+      
